@@ -101,12 +101,14 @@ class Request
     if (isset($_SERVER['HTTP_ACCEPT']))
     {
       $knownTypes = array_flip(Response::getContentTypes());
-      $accepted = explode(',', strtok(strtolower($_SERVER['HTTP_ACCEPT']), ';'));
-      foreach($accepted as $type)
+      foreach(explode(';', strtolower($_SERVER['HTTP_ACCEPT'])) as $types)
       {
-        if (isset($knownTypes[$type]))
+        foreach (explode(',', $types) as $type)
         {
-          return $knownTypes[$type];
+          if (isset($knownTypes[$type]))
+          {
+            return $knownTypes[$type];
+          }
         }
       }
     }

@@ -4,7 +4,7 @@
     Txt created at <a href=""></a>
     <span class="close" onclick="this.parentNode.style.display='none'">&#10006;</span>
   </div>
-  <form method="POST" action="/">
+  <form method="POST" action="/" id="txtform">
     <div>
       <textarea name="data" rows=6 autofocus placeholder="Put your txt here"></textarea><br>
     </div>
@@ -71,3 +71,4 @@
     </dl>
   </div>
 </section>
+<script src="/js/home.js"></script>

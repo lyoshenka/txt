@@ -101,6 +101,9 @@
       color: #001f3f;
       font-weight: bold;
     }
+    button:disabled {
+      background-color: #ccc;
+    }
     input[type="checkbox"] {
       height: calc(1em + 2px);
       width: calc(1em + 2px);
