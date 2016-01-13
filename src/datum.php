@@ -36,7 +36,7 @@ class Datum
   {
     $r = new \ReflectionClass($this);
     $arr = [];
-    foreach($r->getProperties(ReflectionProperty::IS_PUBLIC) as $prop)
+    foreach($r->getProperties(\ReflectionProperty::IS_PUBLIC) as $prop)
     {
       $arr[$prop->getName()] = $this->{$prop->getName()};
     }
@@ -47,7 +47,7 @@ class Datum
   {
     $obj = new static();
     $r = new \ReflectionClass($obj);
-    foreach($r->getProperties(ReflectionProperty::IS_PUBLIC) as $prop)
+    foreach($r->getProperties(\ReflectionProperty::IS_PUBLIC) as $prop)
     {
       if (isset($arr[$prop->getName()]))
       {

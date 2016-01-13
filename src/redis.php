@@ -6,6 +6,7 @@ class Redis
 {
   const PREFIX ='txt:';
   const MAX_KEY_LENGTH = 10;
+  const MAX_TTL = 2592000; // 30 days
 
   public static function getRedis($dsn)
   {
