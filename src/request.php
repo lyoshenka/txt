@@ -79,4 +79,10 @@ class Request
     parse_str($parsed['query'], $query);
     return $query;
   }
+
+  public static function isFlagOn($name)
+  {
+    return (array_key_exists($name, $_GET) && ($_GET[$name] === '' || $_GET[$name])) ||
+           (static::isPost() && isset($_POST[$name]) && $_POST[$name]);
+  }
 }

@@ -6,12 +6,16 @@ class App
 {
   public static function run()
   {
-
     $dotenv = new \Dotenv\Dotenv(TXTROOT);
     $dotenv->load();
-    $dotenv->required(['REDIS_URL'])->notEmpty();
 
-    $apiResponseType = array_key_exists('json', $_GET) ? Response::JSON : Response::TEXT;
+    $apiResponseType = Request::isFlagOn('json') ? Response::JSON : Response::TEXT;
+
+    if (!getenv('REDIS_URL'))
+    {
+      Response::sendVaried($apiResponseType, '500 Internal Server Error', ['code' => 500, 'error' => "REDIS_URL environment variable required"]);
+      exit();
+    }
 
     if (!Request::isGet() && !Request::isPost())
     {
@@ -19,11 +23,12 @@ class App
       exit();
     }
 
-    if (getenv('AUTH_TOKEN') && (!isset($_GET['auth_token']) || !static::compareStrings(getenv('AUTH_TOKEN'), $_GET['auth_token'])))
+    if (getenv('AUTH') && (!isset($_POST['auth']) || !static::compareStrings(getenv('AUTH'), $_POST['auth'])))
     {
-      Response::sendVaried($apiResponseType, '401 Unauthorized', ['code' => 401, 'error' => "'auth_token' required"]);
+      Response::sendVaried($apiResponseType, '401 Unauthorized', ['code' => 401, 'error' => "'auth' parameter is missing or invalid"]);
       exit();
     }
+
 
     //    header('Access-Control-Allow-Origin: ' . $_SERVER['ORIGIN']);
     //    header('Access-Control-Allow-Credentials: true');
@@ -63,7 +68,7 @@ class App
         $redis->del(Redis::PREFIX.$hash);
       }
 
-      if (array_key_exists('raw', $_GET))
+      if (Request::isFlagOn('raw'))
       {
         Response::setCacheForeverHeaders();
         Response::sendText('200 OK', $datum->content);
@@ -82,10 +87,10 @@ class App
     else
     {
       $data = isset($_POST['data']) ? $_POST['data'] : file_get_contents("php://input");
-      $datum = new Datum(trim($data), Datum::T_TEXT, array_key_exists('once', $_GET));
+      $datum = new Datum(trim($data), Datum::T_TEXT, Request::isFlagOn('once'));
 
       $key = substr(static::randId(), 0, Redis::MAX_KEY_LENGTH);
-      $ttl = isset($_GET['ttl']) ? min((int)$_GET['ttl'], Redis::MAX_TTL) : Redis::MAX_TTL;
+      $ttl = isset($_POST['ttl']) ? max(1, min((int)$_POST['ttl'], Redis::MAX_TTL)) : Redis::MAX_TTL;
       $redis->hMSet(Redis::PREFIX.$key, $datum->toArray());
       $redis->expire(Redis::PREFIX.$key, $ttl);
 
