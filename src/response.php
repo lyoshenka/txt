@@ -6,10 +6,54 @@ class Response
 {
   const TEXT = 'text';
   const JSON = 'json';
+  const HTML = 'html';
+
+  protected static $contentTypes = [
+    self::TEXT => 'text/plain',
+    self::JSON => 'application/json',
+    self::HTML => 'text/html'
+  ];
+
+  const HTTP_200 = 200;
+  const HTTP_201 = 201;
+  const HTTP_400 = 400;
+  const HTTP_401 = 401;
+  const HTTP_404 = 404;
+  const HTTP_405 = 405;
+  const HTTP_500 = 500;
+
+  protected static $httpStatusMessages = [
+    self::HTTP_200 => 'OK',
+    self::HTTP_201 => 'Created',
+    self::HTTP_400 => 'Bad Request',
+    self::HTTP_401 => 'Unauthorized',
+    self::HTTP_404 => 'Not Found',
+    self::HTTP_405 => 'Method Not Allowed',
+    self::HTTP_500 => 'Internal Server Error',
+  ];
 
   protected static $sent = false;
   protected static $headers = [];
   protected static $content = '';
+
+  public static function getContentTypes()
+  {
+    return static::$contentTypes;
+  }
+
+  public static function getStatusMessage($status)
+  {
+    if (!isset(static::$httpStatusMessages[$status]))
+    {
+      throw new \OutOfRangeException('Invalid status: ' . $status);
+    }
+    return static::$httpStatusMessages[$status];
+  }
+
+  public static function isSuccess($status)
+  {
+    return (int)$status < static::HTTP_400;
+  }
 
   public static function setHeader($name, $value)
   {
@@ -18,7 +62,7 @@ class Response
 
   public static function setStatus($status)
   {
-    static::$headers['Status'] = $status;
+    static::$headers['Status'] = $status . ' ' . static::$httpStatusMessages[$status];
   }
 
   public static function getStatus()
@@ -31,19 +75,14 @@ class Response
     static::$content = $content;
   }
 
-  public static function setIsText()
+  public static function setContentType($type)
   {
-    static::setHeader('Content-Type', 'text/plain; charset=utf-8');
-  }
+    if (!isset(static::$contentTypes[$type]))
+    {
+      throw new \OutOfRangeException('Invalid content type: ' . $type);
+    }
 
-  public static function setIsHtml()
-  {
-    static::setHeader('Content-Type', 'text/html; charset=utf-8');
-  }
-
-  public static function setIsJson()
-  {
-    static::setHeader('Content-Type', 'application/json; charset=utf-8');
+    static::setHeader('Content-Type', static::$contentTypes[$type] . '; charset=utf-8');
   }
 
   public static function send($status = null, $content = null)
@@ -77,43 +116,22 @@ class Response
     static::setHeader('Cache-Control', 'max-age=31556926');
   }
 
-  public static function sendJson($status, $content)
+  public static function sendResponse($nameOrStatus, $data = [])
   {
-    static::setStatus($status);
-    static::setIsJson();
-    static::setContent(json_encode($content, JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK));
-    static::send();
-  }
+    $type = Request::guessResponseType();
+    $template = Template::find($nameOrStatus, $type);
 
-  public static function sendTemplate($status, $templateName, $templateVars = [])
-  {
+    $status = is_numeric($nameOrStatus) ? $nameOrStatus : static::HTTP_200;
     static::setStatus($status);
-    static::setIsHtml();
-    static::setContent(Template::renderPage($templateName, $templateVars));
-    static::send();
-  }
+    static::setContentType($type);
 
-  public static function sendText($status, $text)
-  {
-    static::setStatus($status);
-    static::setIsText();
-    static::setContent($text);
-    static::send();
-  }
-
-  public static function sendVaried($type, $status, $json, $textKey = 'error')
-  {
-    switch($type)
+    if ($type == static::HTML)
     {
-      case static::JSON:
-        static::sendJson($status, $json);
-        break;
-      case static::TEXT:
-        $prefix = $json['code'] >= 400 ? ($json['code'] . ': ') : '';
-        static::sendText($status, $prefix . $json[$textKey] . "\n");
-        break;
-      default:
-        throw new \DomainException('Invalid response type: ' . $type);
+      Template::setDecorator('baseHtml');
     }
+
+    $data['_status'] = $status;
+    static::setContent(Template::renderPage($template, $data));
+    static::send();
   }
 }

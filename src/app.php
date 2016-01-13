@@ -9,23 +9,21 @@ class App
     $dotenv = new \Dotenv\Dotenv(TXTROOT);
     $dotenv->load();
 
-    $apiResponseType = Request::isFlagOn('json') ? Response::JSON : Response::TEXT;
-
     if (!getenv('REDIS_URL'))
     {
-      Response::sendVaried($apiResponseType, '500 Internal Server Error', ['code' => 500, 'error' => "REDIS_URL environment variable required"]);
+      Response::sendResponse(Response::HTTP_500, ['error' => "REDIS_URL environment variable required"]);
       exit();
     }
 
     if (!Request::isGet() && !Request::isPost())
     {
-      Response::sendVaried($apiResponseType, '405 Method Not Allowed', ['code' => 404, 'error' => "Please use a GET or POST"]);
+      Response::sendResponse(Response::HTTP_405, ['error' => "Please use a GET or POST"]);
       exit();
     }
 
     if (getenv('AUTH') && (!isset($_POST['auth']) || !static::compareStrings(getenv('AUTH'), $_POST['auth'])))
     {
-      Response::sendVaried($apiResponseType, '401 Unauthorized', ['code' => 401, 'error' => "'auth' parameter is missing or invalid"]);
+      Response::sendResponse(Response::HTTP_401, ['error' => "'auth' parameter is missing or invalid"]);
       exit();
     }
 
@@ -45,20 +43,20 @@ class App
     {
       if (Request::isPost())
       {
-        Response::sendVaried($apiResponseType, '405 Method Not Allowed', ['code' => 404, 'error' => "Cannot post to a hash"]);
+        Response::sendResponse(Response::HTTP_405, ['error' => "Cannot post to a hash"]);
         exit();
       }
 
       if (strlen($hash) > Redis::MAX_KEY_LENGTH || !preg_match('/^[A-Za-z0-9]+$/', $hash))
       {
-        Response::sendVaried($apiResponseType, '404 Not Found', ['code' => 404, 'error' => "Invalid hash"]);
+        Response::sendResponse(Response::HTTP_404, ['error' => "Invalid hash"]);
         exit();
       }
 
       $data = $redis->hGetAll(Redis::PREFIX.$hash);
       if (!$data)
       {
-        Response::sendVaried($apiResponseType, '404 Not Found', ['code' => 404, 'error' => "Hash not found"]);
+        Response::sendResponse(Response::HTTP_404, ['error' => "Hash not found"]);
         exit();
       }
 
@@ -68,20 +66,15 @@ class App
         $redis->del(Redis::PREFIX.$hash);
       }
 
-      if (Request::isFlagOn('raw'))
-      {
-        Response::setCacheForeverHeaders();
-        Response::sendText('200 OK', $datum->content);
-        exit();
-      }
-
-      Response::sendTemplate('200 OK', 'item', ['content' => $datum->content]);
+      // set proper cache header, esp for read-once
+      // Response::setCacheForeverHeaders();
+      Response::sendResponse('datum', ['datum' => $datum]);
       exit();
     }
 
     if (Request::isGet())
     {
-      Response::sendTemplate('200 OK', 'home', ['domain' => Request::getHost(), 'ssl' => Request::isSSL()]);
+      Response::sendResponse('home', ['domain' => 'http' . (Request::isSSL() ? 's' : ''). '://' . Request::getHost()]);
       exit;
     }
     else
@@ -95,7 +88,7 @@ class App
       $redis->expire(Redis::PREFIX.$key, $ttl);
 
       $url = 'http' . (Request::isSSL() ? 's' : '') . '://' . Request::getHost().'/'.$key;
-      Response::sendVaried($apiResponseType, '201 Created', ['code' => 201, 'url' => $url, 'ttl' => $ttl], 'url');
+      Response::sendResponse(Response::HTTP_201, ['url' => $url, 'ttl' => $ttl, '_textKey' => 'url']);
       exit();
     }
   }

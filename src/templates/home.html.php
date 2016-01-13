@@ -1,4 +1,3 @@
-<?php $url = 'http' . ($ssl ? 's' : ''). '://' . $domain ?>
 <section>
   <h2>New Txt</h2>
   <div class='flash' style="display: none">
@@ -31,7 +30,7 @@
 
 <section>
   <h2>CLI</h2>
-  <pre>cat FILENAME | curl -F 'data=<-' <?php echo $url ?></pre>
+  <pre>cat FILENAME | curl -F 'data=<-' <?php echo $domain ?></pre>
 </section>
 
 
@@ -40,7 +39,7 @@
 
   <h3>Create</h3>
   <div class="indent">
-    <pre>POST <?php echo $url ?>?ttl=3600&once=1<?php echo "\n" ?>data=<?php echo urlencode('s3cr3t passw0rd') ?></pre>
+    <pre>POST <?php echo $domain ?>?ttl=3600&once=1<?php echo "\n" ?>data=<?php echo urlencode('s3cr3t passw0rd') ?></pre>
 
     <h4>Optional Params</h4>
     <dl>
@@ -60,7 +59,7 @@
 
   <h3>Get</h3>
   <div class="indent">
-    <pre>GET <?php echo $url ?>/c0d3?raw</pre>
+    <pre>GET <?php echo $domain ?>/c0d3?raw</pre>
 
     <h4>Optional Params</h4>
     <dl>

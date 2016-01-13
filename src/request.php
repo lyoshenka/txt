@@ -85,4 +85,32 @@ class Request
     return (array_key_exists($name, $_GET) && ($_GET[$name] === '' || $_GET[$name])) ||
            (static::isPost() && isset($_POST[$name]) && $_POST[$name]);
   }
+
+  public static function guessResponseType()
+  {
+    if (static::isFlagOn('raw'))
+    {
+      return Response::TEXT;
+    }
+
+    if (static::isFlagOn('json'))
+    {
+      return Response::JSON;
+    }
+
+    if (isset($_SERVER['HTTP_ACCEPT']))
+    {
+      $knownTypes = array_flip(Response::getContentTypes());
+      $accepted = explode(',', strtok(strtolower($_SERVER['HTTP_ACCEPT']), ';'));
+      foreach($accepted as $type)
+      {
+        if (isset($knownTypes[$type]))
+        {
+          return $knownTypes[$type];
+        }
+      }
+    }
+
+    return Response::TEXT;
+  }
 }

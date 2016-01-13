@@ -1,0 +1,1 @@
+<?php echo \txt\Template::render('generic.json', $datum->toArray());
