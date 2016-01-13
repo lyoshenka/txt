@@ -1,0 +1,16 @@
+{
+    "name": "lyoshenka/txt",
+    "description": "Simple pastebin",
+    "license": "WTFPL",
+    "authors": [
+        {
+            "name": "Alex Grintsvayg",
+            "email": "alex@grin.io"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "colinmollenhour/credis": "~1.6",
+        "vlucas/phpdotenv": "^2.2"
+    }
+}
