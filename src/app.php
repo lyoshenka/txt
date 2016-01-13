@@ -89,7 +89,8 @@ class App
       $redis->hMSet(Redis::PREFIX.$key, $datum->toArray());
       $redis->expire(Redis::PREFIX.$key, $ttl);
 
-      Response::sendVaried($apiResponseType, '201 Created', ['code' => 201, 'url' => Request::getHost().'/'.$key, 'ttl' => $ttl], 'url');
+      $url = 'http' . (Request::isSSL() ? 's' : '') . '://' . Request::getHost().'/'.$key;
+      Response::sendVaried($apiResponseType, '201 Created', ['code' => 201, 'url' => $url, 'ttl' => $ttl], 'url');
       exit();
     }
   }

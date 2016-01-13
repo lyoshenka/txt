@@ -9,24 +9,24 @@
     Expires in
     <select name="ttl">
       <option value="3600">1 hour</option>
-      <option value="3600">1 day</option>
-      <option value="3600">1 month</option>
+      <option value="86400" selected>1 day</option>
+      <option value="604800">1 week</option>
+      <option value="2592000">1 month</option>
     </select>
   </div>
 
   <div>
-    <input type="checkbox" name="once" />Burn after reading?
+    <input type="checkbox" name="once" />Delete after opening?
   </div>
 
   <button type="submit">Submit</button>
 </form>
 
 <h2>CLI</h2>
-
 <pre>cat FILENAME | curl -F 'data=<-' <?php echo $url ?></pre>
 
-<h2>API</h2>
 
+<h2>API</h2>
 
 <h3>Get</h3>
 <pre>GET <?php echo $url ?>/c0d3?raw</pre>

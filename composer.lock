@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1269d31522fca7d23983220c00c3f4af",
-    "content-hash": "2d24b603bd252307f9693943e3b0c55f",
+    "hash": "d99484a9325c36d4d54e575e236444cf",
+    "content-hash": "89b3ecf622f8bdec4d830a198326dff6",
     "packages": [
         {
             "name": "colinmollenhour/credis",
@@ -48,16 +48,16 @@
         },
         {
             "name": "vlucas/phpdotenv",
-            "version": "dev-master",
+            "version": "v2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vlucas/phpdotenv.git",
-                "reference": "a69bdfc950e5097590f49aafecbfc88a6cbf290a"
+                "reference": "9caf304153dc2288e4970caec6f1f3b3bc205412"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/a69bdfc950e5097590f49aafecbfc88a6cbf290a",
-                "reference": "a69bdfc950e5097590f49aafecbfc88a6cbf290a",
+                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/9caf304153dc2288e4970caec6f1f3b3bc205412",
+                "reference": "9caf304153dc2288e4970caec6f1f3b3bc205412",
                 "shasum": ""
             },
             "require": {
@@ -95,12 +95,12 @@
                 "env",
                 "environment"
             ],
-            "time": "2016-01-11 17:46:05"
+            "time": "2015-12-29 15:10:30"
         }
     ],
     "packages-dev": [],
     "aliases": [],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,

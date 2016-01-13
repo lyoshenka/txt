@@ -8,7 +8,7 @@
             "email": "alex@grin.io"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "php": "~5.6",
         "colinmollenhour/credis": "~1.6",
