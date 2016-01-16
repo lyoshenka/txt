@@ -3,7 +3,8 @@ sjcl.random.startCollectors();
 
 
 txt.ready(function(){
-  var form = document.getElementById('txtform');
+  var form = document.getElementById('txtform'),
+      textarea = form.querySelector('textarea');
 
   document.getElementById('encryptDiv').style.visibility = 'visible';
 
@@ -19,11 +20,10 @@ txt.ready(function(){
 
     ev.preventDefault();
 
-    var plaintext = form.querySelector('textarea').value;
+    var plaintext = textarea.value;
 
     if (!plaintext.trim()) {
-      txt.message('error', 'Theres no text to submit.', 'Error');
-      // or flash the textbox instead???
+      txt.shake(textarea);
       return;
     }
 
@@ -39,13 +39,18 @@ txt.ready(function(){
         flash.style.display = 'block';
       }
       else {
-        alert(this.responseText);
+        try {
+          var errResp = JSON.parse(this.responseText);
+          txt.alert(errResp.error);
+        }
+        catch (e) {
+          txt.alert("Could not parse JSON.<br>" + e + "<br><br>" + this.responseText);
+        }
       }
     };
 
     var onFail = function() {
-      txt.message('error', 'POST failed.', 'Error');
-      console.log(this);
+      txt.alert('POST failed.');
     };
 
 
@@ -57,7 +62,7 @@ txt.ready(function(){
 
       if (!ciphertext) {
         key = null;
-        txt.message('error', 'Txt could not be encrypted. Aborting.', 'Error');
+        txt.alert('Txt could not be encrypted. Aborting.');
         return;
       }
 

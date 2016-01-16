@@ -20,11 +20,11 @@
     </div>
 
     <div>
-      <label><input type="checkbox" name="once"> <span>Delete after opening?</span></label>
+      <label><input type="checkbox" name="once"> <span>Delete after opening</span></label>
     </div>
 
     <div id="encryptDiv" style="visibility: hidden">
-      <label><input type="checkbox" id="encryptCheckbox"> <span>Encrypt before submitting?</span></label>
+      <label><input type="checkbox" id="encryptCheckbox"> <span>Encrypt before submitting</span></label>
     </div>
 
     <button type="submit">Create</button>
@@ -34,7 +34,7 @@
 
 <section>
   <h2>CLI</h2>
-  <pre>cat FILENAME | curl -F 'data=<-' <?php echo $domain ?></pre>
+  <pre>cat FILENAME | curl -F 'data=&lt;-' <?php echo $domain ?></pre>
 </section>
 
 
@@ -43,7 +43,7 @@
 
   <h3>Create</h3>
   <div class="indent">
-    <pre>POST <?php echo $domain ?>?ttl=3600&once=1<?php echo "\n" ?>data=<?php echo urlencode('s3cr3t passw0rd') ?></pre>
+    <pre>POST <?php echo $domain ?>?ttl=3600&amp;once=1<?php echo "\n" ?>data=<?php echo urlencode('s3cr3t passw0rd') ?></pre>
 
     <h4>Optional Params</h4>
     <dl>
@@ -67,13 +67,18 @@
 
     <h4>Optional Params</h4>
     <dl>
-      <dt>raw</dt>
+      <dt>?raw</dt>
       <dd>Get raw txt.</dd>
 
-      <dt>json</dt>
-      <dd>Respond with JSON (default is plain text).</dd>
+      <dt>?json</dt>
+      <dd>Get JSON.</dd>
     </dl>
   </div>
+</section>
+
+<section>
+  <h2>About</h2>
+  <a href="https://github.com/lyoshenka/txt">Source &amp; Docs</a>
 </section>
 <script src="/js/lzw.js"></script>
 <script src="/js/sjcl.js"></script>

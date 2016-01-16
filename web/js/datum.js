@@ -13,6 +13,6 @@ txt.ready(function() {
     ciphertext = '';
   }
   else {
-    txt.message('error', 'Could not decrypt data (Wrong key?)', 'Error');
+    txt.alert('Could not decrypt data (incorrect key?)', 5000);
   }
 });

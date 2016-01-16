@@ -80,6 +80,11 @@ class App
     else
     {
       $data = isset($_POST['data']) ? $_POST['data'] : file_get_contents("php://input");
+      if (!$data)
+      {
+        Response::sendResponse(Response::HTTP_400, ['error' => 'No data submitted']);
+        exit();
+      }
       $datum = new Datum(trim($data), Datum::T_TEXT, Request::isFlagOn('once'));
 
       $key = substr(static::randId(), 0, Redis::MAX_KEY_LENGTH);

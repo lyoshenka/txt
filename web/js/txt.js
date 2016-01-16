@@ -1,5 +1,21 @@
 window.txt = {
 
+  addClass: function(el, className) {
+    if (el.classList) {
+      el.classList.add(className);
+    } else {
+      el.className += ' ' + className;
+    }
+  },
+
+  removeClass: function(el, className) {
+    if (el.classList) {
+      el.classList.remove(className);
+    } else {
+      el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+    }
+  },
+
   ready: function(fn) {
     if (document.readyState != 'loading'){
       fn();
@@ -54,12 +70,25 @@ window.txt = {
       return sjcl.codec.base64.fromBits(key, 0).replace(/\=+$/, '').replace(/\//, '-');
   },
 
-  message: function (type, message, title, flush, callback) {
-    alert(title + ': ' + message);
-    if (callback) {
-      callback();
+  alert: (function (message, hideAfter) {
+    var currentTimeout;
+    return function(message, hideAfter) {
+      var alert = document.getElementById('alert'),
+          contTime = 1;
+      if (currentTimeout) {
+        clearTimeout(currentTimeout);
+        alert.style.top = '-10000px';
+        contTime = 100;
+      }
+      setTimeout(function(){
+        alert.querySelector('span').innerHTML = message;
+        alert.style.top = 0;
+        if (hideAfter !== true) {
+          currentTimeout = setTimeout(function() { alert.style.top = '-10000px'; currentTimeout = null; }, hideAfter === undefined ? 3000 : hideAfter);
+        }
+      }, contTime);
     }
-  },
+  })(),
 
   /** Return an link object with the URL as href so you can extract host, protocol, hash, etc.
     This function use a closure to store a <div> parent for the <a> because IE requires the link
@@ -115,5 +144,12 @@ window.txt = {
     } catch (err) {
       return null;
     }
+  },
+
+  shake: function (el) {
+    this.addClass(el, 'shake');
+    setTimeout(this.curry(this.removeClass, el, 'shake'), 300);
   }
 };
+
+txt.addClass(document.body, ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch ? 'touch' :'no-touch');
