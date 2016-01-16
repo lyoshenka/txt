@@ -1,66 +1,73 @@
-function ready(fn) {
-  if (document.readyState != 'loading'){
-    fn();
-  } else {
-    document.addEventListener('DOMContentLoaded', fn);
-  }
-}
+/* Start random number generator seeding ASAP */
+sjcl.random.startCollectors();
 
-function ajaxPost (form, successCb, errorCb) {
-  var url = form.action,
-      xhr = new XMLHttpRequest();
 
-  //This is a bit tricky, [].fn.call(form.elements, ...) allows us to call .fn
-  //on the form's elements, even though it's not an array. Effectively
-  //Filtering all of the fields on the form
-  var params = [].filter.call(form.elements, function(el) {
-    //Allow only elements that don't have the 'checked' property
-    //Or those who have it, and it's checked for them.
-    return typeof(el.checked) === 'undefined' || el.checked;
-    //Practically, filter out checkboxes/radios which aren't checked.
-  })
-  .filter(function(el) { return !!el.name; }) //Nameless elements die.
-  .filter(function(el) { return el.disabled; }) //Disabled elements die.
-  .map(function(el) {
-      //Map each field into a name=value string, make sure to properly escape!
-      return encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value);
-  }).join('&'); //Then join all the strings by &
-
-  xhr.open("POST", url, true);
-  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-  xhr.setRequestHeader("Accept", "application/json");
-
-  if (successCb)
-  {
-    xhr.onload = successCb.bind(xhr);
-  }
-  if (errorCb) // for connection errors
-  {
-    xhr.onerror = errorCb.bind(xhr);
-  }
-
-  //All preperations are clear, send the request!
-  xhr.send(params);
-}
-
-ready(function(){
+txt.ready(function(){
   var form = document.getElementById('txtform');
-  form.onsubmit = function() {
-    form.querySelector('button[type="submit"]').disabled = true;
-    ajaxPost(this, function() {
-      form.querySelector('button[type="submit"]').disabled = false;
+
+  document.getElementById('encryptDiv').style.visibility = 'visible';
+
+  function setInputsEnabled(isEnabled) {
+    var inputs = form.querySelectorAll('input, textarea, select, button');
+    Array.prototype.forEach.call(inputs, function(el) {
+      el.disabled = !isEnabled;
+    });
+  };
+
+
+  form.onsubmit = function(ev) {
+
+    ev.preventDefault();
+
+    var plaintext = form.querySelector('textarea').value;
+
+    if (!plaintext.trim()) {
+      txt.message('error', 'Theres no text to submit.', 'Error');
+      // or flash the textbox instead???
+      return;
+    }
+
+
+    var onSuccess = function(key) {
+      setInputsEnabled(true)
       if (this.status >= 200 && this.status < 400) {
-        var data = JSON.parse(this.responseText);
-        var flash = document.querySelector('.flash');
-        flash.querySelector('a').href = data.url;
-        flash.querySelector('a').textContent = data.url;
+        var data = JSON.parse(this.responseText),
+            flash = document.querySelector('.flash'),
+            url = data.url + (key ? '#'+key : '');
+        flash.querySelector('a').href = url;
+        flash.querySelector('a').textContent = url;
         flash.style.display = 'block';
-        form.querySelector('textarea').value = '';
       }
       else {
         alert(this.responseText);
       }
-    });
-    return false;
+    };
+
+    var onFail = function() {
+      txt.message('error', 'POST failed.', 'Error');
+      console.log(this);
+    };
+
+
+    setInputsEnabled(false);
+
+    if (document.getElementById('encryptCheckbox').checked) {
+      var key = txt.makeKey(256),
+          ciphertext = txt.encrypt(key, plaintext);
+
+      if (!ciphertext) {
+        key = null;
+        txt.message('error', 'Txt could not be encrypted. Aborting.', 'Error');
+        return;
+      }
+
+      txt.ajaxPost(this, txt.curry(onSuccess, key), onFail, function(el) {
+        var val = el.value == plaintext ? ciphertext : el.value;
+        return encodeURIComponent(el.name) + '=' + encodeURIComponent(val);
+      });
+    }
+    else {
+      txt.ajaxPost(this, txt.curry(onSuccess, null), onFail);
+    }
   };
 });

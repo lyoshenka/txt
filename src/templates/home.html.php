@@ -23,6 +23,10 @@
       <label><input type="checkbox" name="once"> <span>Delete after opening?</span></label>
     </div>
 
+    <div id="encryptDiv" style="visibility: hidden">
+      <label><input type="checkbox" id="encryptCheckbox"> <span>Encrypt before submitting?</span></label>
+    </div>
+
     <button type="submit">Create</button>
   </form>
 </section>
@@ -71,4 +75,7 @@
     </dl>
   </div>
 </section>
+<script src="/js/lzw.js"></script>
+<script src="/js/sjcl.js"></script>
+<script src="/js/txt.js"></script>
 <script src="/js/home.js"></script>
