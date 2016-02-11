@@ -2,7 +2,7 @@
 
 ## Usage
 
-    cat FILENAME | curl -F 'data=<-' <?php echo $domain ?>
+    curl -F 'data=<-' https://txt.topscore.us < FILENAME
 
 ## More Info
 

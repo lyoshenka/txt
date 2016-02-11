@@ -34,7 +34,7 @@
 
 <section>
   <h2>CLI</h2>
-  <pre>cat FILENAME | curl -F 'data=&lt;-' <?php echo $domain ?></pre>
+  <pre>curl -F 'data=&lt;-' <?php echo $domain ?> &lt; FILENAME</pre>
 </section>
 
 
