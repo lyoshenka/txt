@@ -13,8 +13,8 @@
       Expires in
       <select name="ttl">
         <option value="3600">1 hour</option>
-        <option value="86400" selected>1 day</option>
-        <option value="604800">1 week</option>
+        <option value="86400">1 day</option>
+        <option value="604800" selected>1 week</option>
         <option value="2592000">1 month</option>
       </select>
     </div>
