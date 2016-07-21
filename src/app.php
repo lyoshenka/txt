@@ -9,6 +9,13 @@ class App
     $dotenv = new \Dotenv\Dotenv(TXTROOT);
     $dotenv->load();
 
+    if (isset($_SERVER['HTTP_USER_AGENT']) && stripos($_SERVER['HTTP_USER_AGENT'], 'Slackbot-LinkExpanding') !== false)
+    {
+      Response::sendResponse(Response::HTTP_403, ['error' => "No slackbots allowed"]);
+      exit();
+    }
+
+
     if (!getenv('REDIS_URL'))
     {
       Response::sendResponse(Response::HTTP_500, ['error' => "REDIS_URL environment variable required"]);
