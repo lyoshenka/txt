@@ -48,6 +48,14 @@ class App
 
     if ($hash)
     {
+      if ($hash == 'robots.txt')
+      {
+        Response::setStatus(Response::HTTP_200);
+        Response::setContentType(Response::TEXT);
+        Response::setContent("User-agent: *\nDisallow: /");
+        Response::send();
+        exit();
+      }
       if (Request::isPost())
       {
         Response::sendResponse(Response::HTTP_405, ['error' => "Cannot post to a hash"]);
@@ -74,6 +82,7 @@ class App
       }
 
       // set proper cache header, esp for read-once
+      // actually, PROBABLY NOT A GOOD IDEA, esp for things that are meant to expire. we should do the opposite - dont cache
       // Response::setCacheForeverHeaders();
       Response::sendResponse('datum', ['datum' => $datum]);
       exit();
