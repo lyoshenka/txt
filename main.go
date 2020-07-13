@@ -111,7 +111,19 @@ func doRoot(w http.ResponseWriter, r *http.Request) {
 	default:
 		send404(w)
 	case http.MethodGet:
-		w.Write([]byte("Welcome to txt. See https://github.com/lyoshenka/txt for more info.\n"))
+		if regexp.MustCompile("(curl|wget)").MatchString(strings.ToLower(r.UserAgent())) {
+			w.Write([]byte("Welcome to txt. See https://github.com/lyoshenka/txt for more info.\n"))
+			return
+		}
+
+		f, err := os.Open("index.html")
+		if err != nil {
+			w.WriteHeader(500)
+			w.Write([]byte("index html is missing"))
+			return
+		}
+		defer f.Close()
+		io.Copy(w, f)
 	case http.MethodPost:
 		data := make([]byte, maxDataSize+2)
 		n, err := r.Body.Read(data)
@@ -127,8 +139,9 @@ func doRoot(w http.ResponseWriter, r *http.Request) {
 		}
 
 		key := newKey(keyLength)
+		value := data[:n]
 
-		globalStore.Set(key, data[:n], time.Now().Add(20*time.Second))
+		globalStore.Set(key, value, time.Now().Add(24*time.Hour))
 		w.Write([]byte(fmt.Sprintf("%s://%s/%s", proto, domain, key)))
 	}
 }
