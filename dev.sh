@@ -1,3 +1,3 @@
 #!/bin/bash
 
-reflex --decoration=none --start-service=true --regex='\.go$' go run .
+reflex --decoration=none --start-service=true go run .

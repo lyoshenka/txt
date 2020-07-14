@@ -1,3 +1,3 @@
-module github.com/lyoshenka.txt
+module github.com/lyoshenka/txt
 
 go 1.14

@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/lyoshenka.txt/store"
+	"github.com/lyoshenka/txt/store"
 )
 
 const (
@@ -142,7 +142,7 @@ func doRoot(w http.ResponseWriter, r *http.Request) {
 		value := data[:n]
 
 		globalStore.Set(key, value, time.Now().Add(24*time.Hour))
-		w.Write([]byte(fmt.Sprintf("%s://%s/%s", proto, domain, key)))
+		w.Write([]byte(fmt.Sprintf("%s://%s/%s\n", proto, domain, key)))
 	}
 }
 
