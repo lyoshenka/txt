@@ -1,3 +1,5 @@
+//go:generate go-bindata static/
+
 package main
 
 import (
@@ -48,7 +50,7 @@ func main() {
 		proto = "https"
 	}
 
-	if proto == "http" && port != "80" || proto == "https" && port != "443" {
+	if domain == "localhost" {
 		domain = domain + ":" + port
 	}
 
@@ -116,14 +118,13 @@ func doRoot(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		f, err := os.Open("index.html")
+		f, err := Asset("static/index.html")
 		if err != nil {
 			w.WriteHeader(500)
-			w.Write([]byte("index html is missing"))
+			w.Write([]byte(err.Error()))
 			return
 		}
-		defer f.Close()
-		io.Copy(w, f)
+		w.Write(f)
 	case http.MethodPost:
 		data := make([]byte, maxDataSize+2)
 		n, err := r.Body.Read(data)
