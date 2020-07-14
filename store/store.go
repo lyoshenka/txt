@@ -51,7 +51,7 @@ func (s *store) Clean() {
 	defer s.mu.Unlock()
 
 	for k, v := range s.data {
-		if !v.isExpired() {
+		if v.isExpired() {
 			delete(s.data, k)
 		}
 	}

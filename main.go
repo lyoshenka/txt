@@ -49,6 +49,14 @@ func main() {
 		checkErr(err)
 	}()
 
+	go func() {
+		for {
+			<-time.Tick(23 * time.Hour)
+			logIt("cleaning global store")
+			globalStore.Clean()
+		}
+	}()
+
 	logIt("Listening on %s", srv.Addr)
 	err := srv.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
