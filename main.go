@@ -25,42 +25,21 @@ const (
 	maxDataSize = 1024 * 1024 * 10
 )
 
-var (
-	globalStore = store.NewStore()
-	domain      = "localhost"
-	port        = "8080"
-	proto       = "http"
-)
+var globalStore = store.NewStore()
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	p := os.Getenv("PORT")
-	if p != "" {
-		port = p
-	}
-
-	d := os.Getenv("DOMAIN")
-	if d != "" {
-		domain = d
-	}
-
-	if os.Getenv("SSL") != "" {
-		proto = "https"
-	}
-
-	if domain == "localhost" {
-		domain = domain + ":" + port
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
 
 	h := http.NewServeMux()
 	h.Handle("/", http.HandlerFunc(handler))
 
-	srv := &http.Server{
-		Addr:    ":" + port,
-		Handler: h,
-	}
+	srv := &http.Server{Addr: ":" + port, Handler: h}
 
 	go func() {
 		interruptChan := make(chan os.Signal, 1)
@@ -142,8 +121,13 @@ func doRoot(w http.ResponseWriter, r *http.Request) {
 		key := newKey(keyLength)
 		value := data[:n]
 
+		proto := r.Header.Get("x-forwarded-proto")
+		if proto == "" {
+			proto = "http"
+		}
+
 		globalStore.Set(key, value, time.Now().Add(24*time.Hour))
-		w.Write([]byte(fmt.Sprintf("%s://%s/%s\n", proto, domain, key)))
+		w.Write([]byte(fmt.Sprintf("%s://%s/%s\n", proto, r.Host, key)))
 	}
 }
 
