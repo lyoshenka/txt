@@ -1,0 +1,15 @@
+[Unit]
+Description=TXT
+After=network.target
+
+[Service]
+Type=simple
+Environment="PORT=8988"
+User=you
+Group=you
+ExecStart=/home/you/lyoshenka/txt/txt
+Restart=on-failure
+#LimitNOFILE=10000
+
+[Install]
+WantedBy=multi-user.target
