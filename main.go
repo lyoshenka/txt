@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	keyLength   = 6
+	keyLength   = 4
 	maxDataSize = 1024 * 1024 * 10
 )
 
