@@ -113,33 +113,41 @@ func doRoot(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Write(f)
 	case http.MethodPost:
-		data := make([]byte, maxDataSize+2)
-		n, err := r.Body.Read(data)
-		if err != nil && err != io.EOF {
-			w.WriteHeader(500)
-			w.Write([]byte(err.Error()))
-			return
-		}
-		if n > maxDataSize {
-			w.WriteHeader(400)
-			w.Write([]byte(fmt.Sprintf("Max data size is %d", maxDataSize)))
-			return
+		var value []byte
+
+		txtHeader := r.Header.Get("X-Txt")
+		if txtHeader != "" {
+			value = []byte(txtHeader)
+		} else {
+			data := make([]byte, maxDataSize+2)
+			n, err := r.Body.Read(data)
+			if err != nil && err != io.EOF {
+				w.WriteHeader(500)
+				w.Write([]byte(err.Error()))
+				return
+			}
+			if n > maxDataSize {
+				w.WriteHeader(400)
+				w.Write([]byte(fmt.Sprintf("Max data size is %d", maxDataSize)))
+				return
+			}
+
+			value = data[:n]
 		}
 
 		key := newKey(keyLength)
-		value := data[:n]
+		globalStore.Set(key, value, time.Now().Add(24*time.Hour))
 
 		proto := r.Header.Get("x-forwarded-proto")
 		if proto == "" {
 			proto = "http"
 		}
 
-		globalStore.Set(key, value, time.Now().Add(24*time.Hour))
 		w.Write([]byte(fmt.Sprintf("%s://%s/%s\n", proto, r.Host, key)))
 	}
 }
 
-var letterRunes = []rune("abcdefghijkmnopqrstuvwxyz")
+var letterRunes = []rune("abcdefghjkmnopqrstuvwxyz")
 
 func newKey(n int) string {
 	b := make([]rune, n)
