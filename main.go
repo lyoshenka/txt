@@ -9,6 +9,7 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"regexp"
@@ -117,7 +118,12 @@ func doRoot(w http.ResponseWriter, r *http.Request) {
 
 		txtHeader := r.Header.Get("X-Txt")
 		if txtHeader != "" {
-			value = []byte(txtHeader)
+			unescaped, err := url.PathUnescape(txtHeader)
+			if err != nil {
+				value = []byte(txtHeader)
+			} else {
+				value = []byte(unescaped)
+			}
 		} else {
 			data := make([]byte, maxDataSize+2)
 			n, err := r.Body.Read(data)
