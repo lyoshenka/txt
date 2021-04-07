@@ -153,7 +153,7 @@ func doRoot(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var letterRunes = []rune("abcdefghjkmnopqrstuvwxyz")
+var letterRunes = []rune("abcdefghjkmnoprstuvwxyz")
 
 func newKey(n int) string {
 	b := make([]rune, n)
