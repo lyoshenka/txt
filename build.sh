@@ -1,3 +1,3 @@
 #!/bin/bash
 
-go generate && go build
+go build
