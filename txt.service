@@ -4,10 +4,10 @@ After=network.target
 
 [Service]
 Type=simple
-Environment="PORT=8988"
+Environment="PORT=8080"
 User=you
 Group=you
-ExecStart=/home/you/lyoshenka/txt/txt
+ExecStart=/path/to/txt
 Restart=on-failure
 #LimitNOFILE=10000
 

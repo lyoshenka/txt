@@ -52,7 +52,7 @@ func main() {
 
 	go func() {
 		for {
-			<-time.Tick(23 * time.Hour)
+			<-time.Tick(1 * time.Hour)
 			logIt("cleaning global store")
 			globalStore.Clean()
 		}
