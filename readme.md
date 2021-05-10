@@ -1,6 +1,6 @@
 # txt
 
-A super-simple pastebin. That's it. [Try it here](https://txt.grin.io).
+An auto-expiring pastebin. Share things you don't want stored for too long. [Try it here](https://txt.grin.io).
 
 ## Using txt
 
