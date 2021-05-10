@@ -11,7 +11,6 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -80,7 +79,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	key := strings.TrimLeft(r.URL.Path, "/")
 
-	if !regexp.MustCompile("[a-zA-Z0-9]{" + strconv.Itoa(keyLength) + "}").MatchString(key) {
+	if len(key) != keyLength {
 		send404(w)
 		return
 	}
