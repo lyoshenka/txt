@@ -1,6 +1,8 @@
 # txt
 
-An auto-expiring pastebin. Share things you don't want stored for too long. [Try it here](https://txt.grin.io).
+An incredibly simple auto-expiring pastebin. One file, zero dependencies.
+
+Share things you don't want stored for too long. [Try it here](https://txt.grin.io).
 
 ## Using txt
 
@@ -9,8 +11,8 @@ go build
 ./txt
 ```
 
-On linux you can use systemd to run txt as a service. 
-See [txt.service](https://github.com/lyoshenka/txt/blob/master/txt.service) file. 
+On linux you can use systemd to run txt as a service.
+See [txt.service](https://github.com/lyoshenka/txt/blob/master/txt.service) file.
 
 ## Working on txt
 

@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"io"
-	"math/rand"
+	"math/big"
 	"net/http"
 	"net/url"
 	"os"
@@ -113,24 +114,22 @@ func doRoot(w http.ResponseWriter, r *http.Request) {
 				value = []byte(unescaped)
 			}
 		} else {
-			data := make([]byte, maxDataSize+2)
-			n, err := r.Body.Read(data)
+			data, err := io.ReadAll(io.LimitReader(r.Body, maxDataSize))
 			if err != nil && err != io.EOF {
 				w.WriteHeader(500)
 				w.Write([]byte(err.Error()))
 				return
 			}
-			if n > maxDataSize {
+			if len(data) > maxDataSize {
 				w.WriteHeader(400)
 				w.Write([]byte(fmt.Sprintf("Max data size is %d", maxDataSize)))
 				return
 			}
 
-			value = data[:n]
+			value = data
 		}
 
-		key := newKey(keyLength)
-		globalStore.Set(key, value, time.Now().Add(24*time.Hour))
+		key := globalStore.New(value, time.Now().Add(24*time.Hour))
 
 		proto := r.Header.Get("x-forwarded-proto")
 		if proto == "" {
@@ -141,33 +140,9 @@ func doRoot(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var letterRunes = []rune("abcdefghjkmnoprstuvwxyz")
-
-func newKey(n int) string {
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	return string(b)
-}
-
-func logIt(format string, a ...interface{}) (n int, err error) {
-	//fmt.Fprintf(os.Stderr, "[%s] ", time.Now().Format(time.RFC3339))
-	//return fmt.Fprintf(os.Stderr, format+"\n", a...)
-	return fmt.Printf(format+"\n", a...)
-}
-
-func send404(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("404 not found"))
-}
-
-func checkErr(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
+// -------------------------------------------------
+// Store
+// -------------------------------------------------
 
 type entry struct {
 	data    []byte
@@ -193,21 +168,27 @@ func NewStore() *store {
 func (s *store) Get(key string) []byte {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-
-	if e, ok := s.data[key]; ok && !e.isExpired() {
-		return e.data
-	}
-
-	return nil
+	return s.get(key)
 }
 
-func (s *store) Set(key string, content []byte, expires time.Time) {
+func (s *store) New(content []byte, expires time.Time) string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
+	var key string
+	for {
+		key = newKey(keyLength)
+		if s.get(key) == nil {
+			break
+		}
+	}
+
 	s.data[key] = entry{
 		data:    content,
 		expires: expires,
 	}
+
+	return key
 }
 
 func (s *store) Clean() {
@@ -221,6 +202,51 @@ func (s *store) Clean() {
 	}
 }
 
+func (s *store) get(key string) []byte {
+	if e, ok := s.data[key]; ok && !e.isExpired() {
+		return e.data
+	}
+	return nil
+}
+
+var letterRunes = []rune("abcdefghjkmnoprstuvwxyz")
+
+func newKey(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		randNum, err := rand.Int(rand.Reader, big.NewInt(int64(len(letterRunes))))
+		if err != nil {
+			panic(err)
+		}
+		b[i] = letterRunes[randNum.Uint64()]
+	}
+	return string(b)
+}
+
+// -------------------------------------------------
+// Helpers
+// -------------------------------------------------
+
+func logIt(format string, a ...interface{}) (n int, err error) {
+	//fmt.Fprintf(os.Stderr, "[%s] ", time.Now().Format(time.RFC3339))
+	//return fmt.Fprintf(os.Stderr, format+"\n", a...)
+	return fmt.Printf(format+"\n", a...)
+}
+
+func send404(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusNotFound)
+	w.Write([]byte("404 not found"))
+}
+
+func checkErr(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
+// -------------------------------------------------
+// HTML
+// -------------------------------------------------
 
 var indexHTML = []byte(`<!DOCTYPE html>
 <html lang="en">
